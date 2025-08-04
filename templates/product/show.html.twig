@@ -1,0 +1,177 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ product.name }} - SymfoShop{% endblock %}
+
+{% block body %}
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_products') }}">Products</a></li>
+            {% if product.category %}
+                <li class="breadcrumb-item"><a href="{{ path('app_products_by_category', {id: product.category.id}) }}">{{ product.category.name }}</a></li>
+            {% endif %}
+            <li class="breadcrumb-item active">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Product Images -->
+        <div class="col-md-6">
+            <div class="card">
+                {% if product.images|length > 0 %}
+                    <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for image in product.images %}
+                                <div class="carousel-item {{ loop.first ? 'active' : '' }}">
+                                    <img src="{{ image.imagePath }}" class="d-block w-100" alt="{{ image.alt ?? product.name }}" style="height: 400px; object-fit: cover;">
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if product.images|length > 1 %}
+                            <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon"></span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon"></span>
+                            </button>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 400px;">
+                        <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Product Details -->
+        <div class="col-md-6">
+            <h1 class="mb-3">{{ product.name }}</h1>
+            
+            <!-- Rating -->
+            {% if product.averageRating > 0 %}
+                <div class="mb-3">
+                    <div class="text-warning">
+                        {% for i in 1..5 %}
+                            <i class="bi bi-star{{ i <= product.averageRating ? '-fill' : '' }}"></i>
+                        {% endfor %}
+                        <span class="text-muted">({{ product.averageRating }} out of 5)</span>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Price -->
+            <div class="mb-3">
+                <h2 class="text-primary">${{ product.price|number_format(2) }}</h2>
+                {% if product.comparePrice > product.price %}
+                    <span class="text-muted text-decoration-line-through">${{ product.comparePrice|number_format(2) }}</span>
+                    <span class="badge bg-danger ms-2">Save ${{ (product.comparePrice - product.price)|number_format(2) }}</span>
+                {% endif %}
+            </div>
+
+            <!-- Stock Status -->
+            <div class="mb-3">
+                {% if product.stock > 0 %}
+                    <span class="text-success">
+                        <i class="bi bi-check-circle"></i> In Stock ({{ product.stock }} available)
+                    </span>
+                {% else %}
+                    <span class="text-danger">
+                        <i class="bi bi-x-circle"></i> Out of Stock
+                    </span>
+                {% endif %}
+            </div>
+
+            <!-- Description -->
+            {% if product.description %}
+                <div class="mb-4">
+                    <h5>Description</h5>
+                    <p>{{ product.description }}</p>
+                </div>
+            {% endif %}
+
+            <!-- Add to Cart -->
+            {% if product.stock > 0 %}
+                <form method="post" action="{{ path('app_cart_add', {id: product.id}) }}" class="mb-4">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="quantity" class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock }}">
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary btn-lg w-100">
+                                <i class="bi bi-cart-plus"></i> Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            {% endif %}
+
+            <!-- Product Info -->
+            <div class="card">
+                <div class="card-body">
+                    <h6>Product Information</h6>
+                    <ul class="list-unstyled">
+                        {% if product.sku %}
+                            <li><strong>SKU:</strong> {{ product.sku }}</li>
+                        {% endif %}
+                        {% if product.category %}
+                            <li><strong>Category:</strong> <a href="{{ path('app_products_by_category', {id: product.category.id}) }}">{{ product.category.name }}</a></li>
+                        {% endif %}
+                        <li><strong>Added:</strong> {{ product.createdAt|date('M d, Y') }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3>
+                <i class="bi bi-chat-dots"></i> Customer Reviews
+                {% if app.user %}
+                    <a href="{{ path('app_review_new', {id: product.id}) }}" class="btn btn-outline-primary btn-sm float-end">
+                        <i class="bi bi-plus"></i> Write a Review
+                    </a>
+                {% endif %}
+            </h3>
+            
+            {% set approvedReviews = product.reviews|filter(r => r.isApproved) %}
+            {% if approvedReviews|length > 0 %}
+                {% for review in approvedReviews %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="card-title">{{ review.title }}</h6>
+                                    <div class="text-warning mb-2">
+                                        {% for i in 1..5 %}
+                                            <i class="bi bi-star{{ i <= review.rating ? '-fill' : '' }}"></i>
+                                        {% endfor %}
+                                    </div>
+                                    <p class="card-text">{{ review.comment }}</p>
+                                    <small class="text-muted">
+                                        <i class="bi bi-person"></i> {{ review.user.firstName }} {{ review.user.lastName|slice(0, 1) }}.
+                                        <i class="bi bi-calendar"></i> {{ review.createdAt|date('M d, Y') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-chat-dots text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-2">No reviews yet. Be the first to review this product!</p>
+                    {% if app.user %}
+                        <a href="{{ path('app_review_new', {id: product.id}) }}" class="btn btn-primary">
+                            <i class="bi bi-plus"></i> Write a Review
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %} 

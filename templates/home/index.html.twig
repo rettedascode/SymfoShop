@@ -1,0 +1,113 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Home - SymfoShop{% endblock %}
+
+{% block body %}
+    <!-- Hero Section -->
+    <div class="bg-primary text-white py-5 rounded">
+        <div class="container text-center">
+            <h1 class="display-4">
+                <i class="bi bi-shop"></i> Welcome to SymfoShop
+            </h1>
+            <p class="lead">Discover amazing products at great prices</p>
+            <a href="{{ path('app_products') }}" class="btn btn-light btn-lg">
+                <i class="bi bi-arrow-right"></i> Shop Now
+            </a>
+        </div>
+    </div>
+
+    <!-- Featured Products -->
+    {% if featured_products|length > 0 %}
+        <section class="my-5">
+            <h2 class="mb-4">
+                <i class="bi bi-star"></i> Featured Products
+            </h2>
+            <div class="row">
+                {% for product in featured_products %}
+                    <div class="col-md-3 mb-4">
+                        <div class="card h-100">
+                            {% if product.mainImage %}
+                                <img src="{{ product.mainImage.imagePath }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                            {% else %}
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                    <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                                </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ product.name }}</h5>
+                                <p class="card-text text-muted">{{ product.description|slice(0, 100) }}...</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="h5 text-primary mb-0">${{ product.price|number_format(2) }}</span>
+                                    <a href="{{ path('app_product_show', {id: product.id}) }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    <!-- Categories -->
+    {% if categories|length > 0 %}
+        <section class="my-5">
+            <h2 class="mb-4">
+                <i class="bi bi-tags"></i> Shop by Category
+            </h2>
+            <div class="row">
+                {% for category in categories %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <i class="bi bi-folder text-primary" style="font-size: 3rem;"></i>
+                                <h5 class="card-title mt-3">{{ category.name }}</h5>
+                                {% if category.description %}
+                                    <p class="card-text text-muted">{{ category.description }}</p>
+                                {% endif %}
+                                <a href="{{ path('app_products_by_category', {id: category.id}) }}" class="btn btn-primary">
+                                    <i class="bi bi-arrow-right"></i> Browse
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    <!-- Latest Products -->
+    {% if latest_products|length > 0 %}
+        <section class="my-5">
+            <h2 class="mb-4">
+                <i class="bi bi-clock"></i> Latest Products
+            </h2>
+            <div class="row">
+                {% for product in latest_products %}
+                    <div class="col-md-3 mb-4">
+                        <div class="card h-100">
+                            {% if product.mainImage %}
+                                <img src="{{ product.mainImage.imagePath }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                            {% else %}
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                    <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                                </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ product.name }}</h5>
+                                <p class="card-text text-muted">{{ product.description|slice(0, 100) }}...</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="h5 text-primary mb-0">${{ product.price|number_format(2) }}</span>
+                                    <a href="{{ path('app_product_show', {id: product.id}) }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+{% endblock %} 
