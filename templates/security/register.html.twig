@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register - SymfoShop{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="bi bi-person-plus"></i> Create Account
+                </h4>
+            </div>
+            <div class="card-body">
+                {{ form_start(registrationForm, {'attr': {'class': 'needs-validation'}}) }}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(registrationForm.firstName, null, {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(registrationForm.firstName, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(registrationForm.firstName, {'attr': {'class': 'invalid-feedback'}}) }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form_label(registrationForm.lastName, null, {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(registrationForm.lastName, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(registrationForm.lastName, {'attr': {'class': 'invalid-feedback'}}) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.email, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(registrationForm.email, {'attr': {'class': 'invalid-feedback'}}) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.phone, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(registrationForm.phone, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(registrationForm.phone, {'attr': {'class': 'invalid-feedback'}}) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.plainPassword, null, {'label_attr': {'class': 'form-label'}}) }}
+                        {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(registrationForm.plainPassword, {'attr': {'class': 'invalid-feedback'}}) }}
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
+                        {{ form_label(registrationForm.agreeTerms, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                        {{ form_errors(registrationForm.agreeTerms, {'attr': {'class': 'invalid-feedback'}}) }}
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-person-plus"></i> Register
+                        </button>
+                    </div>
+                {{ form_end(registrationForm) }}
+
+                <hr>
+
+                <div class="text-center">
+                    <p class="mb-0">Already have an account?</p>
+                    <a href="{{ path('app_login') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-box-arrow-in-right"></i> Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
