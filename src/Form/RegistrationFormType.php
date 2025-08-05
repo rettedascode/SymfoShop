@@ -21,25 +21,56 @@ class RegistrationFormType extends AbstractType
         $builder
             ->add('firstName', TextType::class, [
                 'label' => 'First Name',
-                'attr' => ['placeholder' => 'Enter your first name'],
+                'attr' => [
+                    'placeholder' => 'Enter your first name',
+                    'class' => 'form-control'
+                ],
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Please enter your first name',
+                    ]),
+                ],
             ])
             ->add('lastName', TextType::class, [
                 'label' => 'Last Name',
-                'attr' => ['placeholder' => 'Enter your last name'],
+                'attr' => [
+                    'placeholder' => 'Enter your last name',
+                    'class' => 'form-control'
+                ],
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Please enter your last name',
+                    ]),
+                ],
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Email',
-                'attr' => ['placeholder' => 'Enter your email'],
+                'attr' => [
+                    'placeholder' => 'Enter your email address',
+                    'class' => 'form-control'
+                ],
+                'constraints' => [
+                    new NotBlank([
+                        'message' => 'Please enter your email',
+                    ]),
+                ],
             ])
             ->add('phone', TextType::class, [
-                'label' => 'Phone (optional)',
+                'label' => 'Phone (Optional)',
                 'required' => false,
-                'attr' => ['placeholder' => 'Enter your phone number'],
+                'attr' => [
+                    'placeholder' => 'Enter your phone number',
+                    'class' => 'form-control'
+                ],
             ])
             ->add('plainPassword', PasswordType::class, [
                 'label' => 'Password',
                 'mapped' => false,
-                'attr' => ['autocomplete' => 'new-password', 'placeholder' => 'Enter your password'],
+                'attr' => [
+                    'placeholder' => 'Enter your password',
+                    'class' => 'form-control',
+                    'autocomplete' => 'new-password'
+                ],
                 'constraints' => [
                     new NotBlank([
                         'message' => 'Please enter a password',
