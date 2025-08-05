@@ -1,0 +1,76 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+*.md
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+var/log/*
+!var/log/.gitkeep
+
+# Cache
+var/cache/*
+!var/cache/.gitkeep
+
+# Sessions
+var/sessions/*
+!var/sessions/.gitkeep
+
+# Uploads
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Node modules (if using Webpack Encore)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment files (keep .env for build, exclude others)
+.env.local
+.env.*.local
+
+# Docker files
+docker-compose.override.yml
+docker-compose.*.yml
+!docker-compose.yml
+
+# Test files
+tests/
+phpunit.xml
+phpunit.xml.dist
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Composer
+composer.phar
+vendor/composer/installers/
+
+# Symfony
+var/bootstrap.php.cache
+var/cache/*
+var/logs/*
+!var/cache/.gitkeep
+!var/logs/.gitkeep 
