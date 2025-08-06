@@ -15,90 +15,125 @@
     {% block stylesheets %}{% endblock %}
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-none" style="z-index: 9999;">
+        <div class="d-flex justify-content-center align-items-center h-100">
+            <div class="spinner-border text-light" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="{{ path('app_home') }}">
+            <a class="navbar-brand" href="{{ path('app_home') }}" title="Go to homepage">
                 <i class="bi bi-shop"></i> {{ shop_name() }}
             </a>
             
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ path('app_home') }}">
+                        <a class="nav-link" href="{{ path('app_home') }}" title="Browse our homepage">
                             <i class="bi bi-house"></i> Home
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ path('app_products') }}">
+                        <a class="nav-link" href="{{ path('app_products') }}" title="Browse all products">
                             <i class="bi bi-grid"></i> Products
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_categories') }}" title="Browse by category">
+                            <i class="bi bi-tags"></i> Categories
                         </a>
                     </li>
                 </ul>
                 
                 <ul class="navbar-nav">
+                    <!-- Search Bar -->
+                    <li class="nav-item me-3">
+                        <form class="d-flex" role="search" action="{{ path('app_products') }}" method="get">
+                            <div class="input-group">
+                                <input class="form-control" type="search" name="q" placeholder="Search products..." 
+                                       aria-label="Search products" value="{{ app.request.query.get('q') }}">
+                                <button class="btn btn-outline-light" type="submit" title="Search">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </li>
+
                     <!-- Theme Toggle -->
                     <li class="nav-item d-flex align-items-center me-3">
                         <div class="d-flex align-items-center">
-                            <label class="theme-toggle">
-                                <input type="checkbox" id="theme-toggle">
+                            <label class="theme-toggle" title="Toggle dark/light mode">
+                                <input type="checkbox" id="theme-toggle" aria-label="Toggle theme">
                                 <span class="theme-toggle-slider"></span>
                             </label>
                             <span class="theme-toggle-label ms-2">
-                                <i class="bi bi-sun-fill" id="light-icon" style="display: none;"></i>
-                                <i class="bi bi-moon-fill" id="dark-icon"></i>
+                                <i class="bi bi-sun-fill" id="light-icon" style="display: none;" title="Light mode"></i>
+                                <i class="bi bi-moon-fill" id="dark-icon" title="Dark mode"></i>
                             </span>
                         </div>
                     </li>
                     
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ path('app_cart') }}">
+                    <!-- Cart with enhanced feedback -->
+                    <li class="nav-item me-2">
+                        <a class="nav-link position-relative" href="{{ path('app_cart') }}" title="View your shopping cart">
                             <i class="bi bi-cart"></i> Cart
                             {% if app.session.get('cart')|length > 0 %}
-                                <span class="badge bg-danger">{{ app.session.get('cart')|length }}</span>
+                                <span class="badge bg-danger position-absolute top-0 start-100 translate-middle" 
+                                      title="{{ app.session.get('cart')|length }} item(s) in cart">
+                                    {{ app.session.get('cart')|length }}
+                                </span>
                             {% endif %}
                         </a>
                     </li>
                     
                     {% if app.user %}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" 
+                               aria-expanded="false" title="Account menu">
                                 <i class="bi bi-person-circle"></i> {{ app.user.firstName }}
                             </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ path('app_profile') }}">
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><h6 class="dropdown-header">Account</h6></li>
+                                <li><a class="dropdown-item" href="{{ path('app_profile') }}" title="Manage your profile">
                                     <i class="bi bi-person"></i> Profile
                                 </a></li>
-                                <li><a class="dropdown-item" href="{{ path('app_orders') }}">
+                                <li><a class="dropdown-item" href="{{ path('app_orders') }}" title="View your order history">
                                     <i class="bi bi-box"></i> Orders
                                 </a></li>
-                                <li><a class="dropdown-item" href="{{ path('app_addresses') }}">
+                                <li><a class="dropdown-item" href="{{ path('app_addresses') }}" title="Manage your addresses">
                                     <i class="bi bi-geo-alt"></i> Addresses
                                 </a></li>
                                 {% if is_granted('ROLE_ADMIN') %}
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="{{ path('app_admin') }}">
-                                        <i class="bi bi-gear"></i> Admin
+                                    <li><h6 class="dropdown-header">Administration</h6></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_admin') }}" title="Access admin panel">
+                                        <i class="bi bi-gear"></i> Admin Panel
                                     </a></li>
                                 {% endif %}
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{{ path('app_logout') }}">
+                                <li><a class="dropdown-item text-danger" href="{{ path('app_logout') }}" title="Sign out">
                                     <i class="bi bi-box-arrow-right"></i> Logout
                                 </a></li>
                             </ul>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('app_login') }}">
+                            <a class="nav-link" href="{{ path('app_login') }}" title="Sign in to your account">
                                 <i class="bi bi-box-arrow-in-right"></i> Login
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('app_register') }}">
+                            <a class="nav-link" href="{{ path('app_register') }}" title="Create a new account">
                                 <i class="bi bi-person-plus"></i> Register
                             </a>
                         </li>
@@ -108,13 +143,14 @@
         </div>
     </nav>
 
-    <!-- Flash Messages -->
+    <!-- Enhanced Flash Messages with auto-dismiss -->
     {% for label, messages in app.flashes %}
         {% for message in messages %}
-            <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
+            <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert" 
+                 data-bs-autohide="true" data-bs-delay="5000">
                 <i class="bi bi-{{ label == 'success' ? 'check-circle' : (label == 'error' ? 'exclamation-triangle' : 'info-circle') }}"></i>
                 {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         {% endfor %}
     {% endfor %}
@@ -124,25 +160,116 @@
         {% block body %}{% endblock %}
     </main>
 
-    <!-- Footer -->
+    <!-- Enhanced Footer -->
     <footer class="bg-dark text-light py-4 mt-5">
         <div class="container">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <h5><i class="bi bi-shop"></i> {{ shop_name() }}</h5>
-                    <p class="mb-0">{{ shop_description()|default('Your trusted online shopping destination.') }}</p>
+                    <p class="mb-2">{{ shop_description()|default('Your trusted online shopping destination.') }}</p>
+                    <div class="d-flex gap-2">
+                        <a href="#" class="text-light" title="Follow us on Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-light" title="Follow us on Twitter"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="text-light" title="Follow us on Instagram"><i class="bi bi-instagram"></i></a>
+                    </div>
                 </div>
-                <div class="col-md-6 text-md-end">
+                <div class="col-md-4">
+                    <h6>Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ path('app_products') }}" class="text-light text-decoration-none">Products</a></li>
+                        <li><a href="{{ path('app_categories') }}" class="text-light text-decoration-none">Categories</a></li>
+                        <li><a href="{{ path('app_cart') }}" class="text-light text-decoration-none">Cart</a></li>
+                        {% if app.user %}
+                            <li><a href="{{ path('app_orders') }}" class="text-light text-decoration-none">My Orders</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <h6>Contact</h6>
+                    <p class="mb-1"><i class="bi bi-envelope"></i> {{ shop_email() }}</p>
+                    <p class="mb-1"><i class="bi bi-telephone"></i> {{ shop_phone() }}</p>
                     <p class="mb-0">&copy; {{ "now"|date("Y") }} {{ shop_name() }}. All rights reserved.</p>
                 </div>
             </div>
         </div>
     </footer>
 
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="btn btn-primary position-fixed bottom-0 end-0 m-3 d-none" 
+            title="Back to top" style="z-index: 1000;">
+        <i class="bi bi-arrow-up"></i>
+    </button>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Theme Switcher JS -->
     <script src="{{ asset('js/theme-switcher.js') }}"></script>
+    
+    <!-- Enhanced UX Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-dismiss alerts
+            const alerts = document.querySelectorAll('.alert[data-bs-autohide="true"]');
+            alerts.forEach(alert => {
+                const delay = alert.dataset.bsDelay || 5000;
+                setTimeout(() => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, delay);
+            });
+
+            // Back to top button
+            const backToTopBtn = document.getElementById('back-to-top');
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.remove('d-none');
+                } else {
+                    backToTopBtn.classList.add('d-none');
+                }
+            });
+
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // Loading overlay for form submissions
+            const forms = document.querySelectorAll('form[data-loading="true"]');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            
+            forms.forEach(form => {
+                form.addEventListener('submit', () => {
+                    loadingOverlay.classList.remove('d-none');
+                });
+            });
+
+            // Enhanced tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Keyboard navigation for dropdowns
+            document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+                toggle.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        const dropdown = new bootstrap.Dropdown(toggle);
+                        dropdown.toggle();
+                    }
+                });
+            });
+
+            // Focus management for modals
+            document.addEventListener('shown.bs.modal', (event) => {
+                const modal = event.target;
+                const firstFocusable = modal.querySelector('input, button, select, textarea, [tabindex]:not([tabindex="-1"])');
+                if (firstFocusable) {
+                    firstFocusable.focus();
+                }
+            });
+        });
+    </script>
+    
     {% block javascripts %}{% endblock %}
 </body>
 </html>

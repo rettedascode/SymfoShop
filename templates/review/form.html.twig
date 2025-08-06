@@ -40,37 +40,29 @@
                     </div>
 
                     <form method="post">
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label for="rating" class="form-label">Rating *</label>
-                            <div class="rating-input">
-                                <div class="btn-group" role="group" aria-label="Rating">
-                                    <input type="radio" class="btn-check" name="rating" id="rating1" value="1" required>
-                                    <label class="btn btn-outline-warning" for="rating1">
-                                        <i class="bi bi-star"></i> 1
-                                    </label>
-                                    
-                                    <input type="radio" class="btn-check" name="rating" id="rating2" value="2">
-                                    <label class="btn btn-outline-warning" for="rating2">
-                                        <i class="bi bi-star"></i> 2
-                                    </label>
-                                    
-                                    <input type="radio" class="btn-check" name="rating" id="rating3" value="3">
-                                    <label class="btn btn-outline-warning" for="rating3">
-                                        <i class="bi bi-star"></i> 3
-                                    </label>
-                                    
-                                    <input type="radio" class="btn-check" name="rating" id="rating4" value="4">
-                                    <label class="btn btn-outline-warning" for="rating4">
-                                        <i class="bi bi-star"></i> 4
-                                    </label>
-                                    
-                                    <input type="radio" class="btn-check" name="rating" id="rating5" value="5">
-                                    <label class="btn btn-outline-warning" for="rating5">
-                                        <i class="bi bi-star"></i> 5
-                                    </label>
+                            <div class="rating-slider-container">
+                                <div class="rating-display mb-3">
+                                    <div class="stars-display">
+                                        <i class="bi bi-star-fill star" data-value="1"></i>
+                                        <i class="bi bi-star-fill star" data-value="2"></i>
+                                        <i class="bi bi-star-fill star" data-value="3"></i>
+                                        <i class="bi bi-star-fill star" data-value="4"></i>
+                                        <i class="bi bi-star-fill star" data-value="5"></i>
+                                    </div>
+                                    <div class="rating-text">
+                                        <span class="rating-value">5</span>/5 - <span class="rating-label">Excellent</span>
+                                    </div>
+                                </div>
+                                <input type="range" class="form-range" id="rating" name="rating" 
+                                       min="1" max="5" value="5" step="1" required>
+                                <div class="d-flex justify-content-between mt-2">
+                                    <small class="text-muted">Poor</small>
+                                    <small class="text-muted">Excellent</small>
                                 </div>
                             </div>
-                            <div class="form-text">Click on a star to rate this product</div>
+                            <div class="form-text">Drag the slider to rate this product</div>
                         </div>
 
                         <div class="mb-3">
@@ -110,46 +102,153 @@
 </div>
 
 <style>
-.rating-input .btn-check:checked + .btn {
-    background-color: #ffc107;
-    border-color: #ffc107;
-    color: #000;
+.rating-slider-container {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid #e9ecef;
 }
 
-.rating-input .btn:hover {
-    background-color: #ffc107;
-    border-color: #ffc107;
-    color: #000;
+.rating-display {
+    text-align: center;
+}
+
+.stars-display {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.stars-display .star {
+    color: #dee2e6;
+    margin: 0 2px;
+    transition: color 0.2s ease;
+}
+
+.stars-display .star.active {
+    color: #ffc107;
+}
+
+.rating-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #495057;
+}
+
+.rating-value {
+    color: #ffc107;
+    font-weight: bold;
+}
+
+.form-range {
+    height: 8px;
+    border-radius: 4px;
+    background: #e9ecef;
+}
+
+.form-range::-webkit-slider-thumb {
+    background: #ffc107;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease;
+}
+
+.form-range::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+
+.form-range::-moz-range-thumb {
+    background: #ffc107;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease;
+}
+
+.form-range::-moz-range-thumb:hover {
+    transform: scale(1.1);
+}
+
+.form-range::-webkit-slider-track {
+    background: linear-gradient(to right, #ffc107 0%, #ffc107 100%, #e9ecef 100%, #e9ecef 100%);
+    border-radius: 4px;
+}
+
+.form-range::-moz-range-track {
+    background: linear-gradient(to right, #ffc107 0%, #ffc107 100%, #e9ecef 100%, #e9ecef 100%);
+    border-radius: 4px;
 }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-select 5 stars by default
-    document.getElementById('rating5').checked = true;
+    const ratingSlider = document.getElementById('rating');
+    const stars = document.querySelectorAll('.star');
+    const ratingValue = document.querySelector('.rating-value');
+    const ratingLabel = document.querySelector('.rating-label');
     
-    // Add visual feedback for rating selection
-    const ratingInputs = document.querySelectorAll('input[name="rating"]');
-    ratingInputs.forEach(input => {
-        input.addEventListener('change', function() {
-            // Reset all labels
-            document.querySelectorAll('.rating-input label').forEach(label => {
-                label.classList.remove('btn-warning');
-                label.classList.add('btn-outline-warning');
-            });
-            
-            // Highlight selected rating and all below it
-            const selectedRating = parseInt(this.value);
-            for (let i = 1; i <= selectedRating; i++) {
-                const label = document.querySelector(`label[for="rating${i}"]`);
-                label.classList.remove('btn-outline-warning');
-                label.classList.add('btn-warning');
+    const ratingLabels = {
+        1: 'Poor',
+        2: 'Fair',
+        3: 'Good',
+        4: 'Very Good',
+        5: 'Excellent'
+    };
+    
+    function updateRating(value) {
+        // Update stars
+        stars.forEach((star, index) => {
+            if (index < value) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
             }
+        });
+        
+        // Update text
+        ratingValue.textContent = value;
+        ratingLabel.textContent = ratingLabels[value];
+        
+        // Update slider track color
+        const percentage = (value / 5) * 100;
+        ratingSlider.style.setProperty('--slider-fill', `${percentage}%`);
+    }
+    
+    // Initialize with default value
+    updateRating(5);
+    
+    // Handle slider change
+    ratingSlider.addEventListener('input', function() {
+        updateRating(parseInt(this.value));
+    });
+    
+    // Handle star clicks
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            const value = parseInt(this.dataset.value);
+            ratingSlider.value = value;
+            updateRating(value);
+        });
+        
+        // Add hover effects
+        star.addEventListener('mouseenter', function() {
+            const value = parseInt(this.dataset.value);
+            stars.forEach((s, index) => {
+                if (index < value) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+        });
+        
+        star.addEventListener('mouseleave', function() {
+            const currentValue = parseInt(ratingSlider.value);
+            updateRating(currentValue);
         });
     });
     
-    // Trigger change event to show initial state
-    document.getElementById('rating5').dispatchEvent(new Event('change'));
+    // Update slider track color on load
+    const percentage = (ratingSlider.value / 5) * 100;
+    ratingSlider.style.setProperty('--slider-fill', `${percentage}%`);
 });
 </script>
 {% endblock %} 

@@ -1,25 +1,26 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Products - SymfoShop{% endblock %}
+{% block title %}Products - {{ shop_name() }}{% endblock %}
 
 {% block body %}
     <div class="row">
-        <!-- Sidebar with filters -->
+        <!-- Enhanced Sidebar with filters -->
         <div class="col-md-3">
-            <div class="card">
+            <div class="card sticky-top" style="top: 1rem;">
                 <div class="card-header">
                     <h5 class="mb-0">
-                        <i class="bi bi-funnel"></i> Filters
+                        <i class="bi bi-funnel"></i> Filters & Search
                     </h5>
                 </div>
                 <div class="card-body">
-                    <!-- Search -->
-                    <form method="get" action="{{ path('app_products') }}">
+                    <!-- Enhanced Search -->
+                    <form method="get" action="{{ path('app_products') }}" data-loading="true">
                         <div class="mb-3">
-                            <label for="search" class="form-label">Search</label>
+                            <label for="search" class="form-label">Search Products</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" id="search" name="search" value="{{ search }}" placeholder="Search products...">
-                                <button class="btn btn-outline-secondary" type="submit">
+                                <input type="text" class="form-control" id="search" name="search" value="{{ search }}" 
+                                       placeholder="Search products..." title="Enter keywords to search products">
+                                <button class="btn btn-outline-secondary" type="submit" title="Search">
                                     <i class="bi bi-search"></i>
                                 </button>
                             </div>
@@ -28,7 +29,7 @@
                         <!-- Category filter -->
                         <div class="mb-3">
                             <label for="category" class="form-label">Category</label>
-                            <select class="form-select" id="category" name="category">
+                            <select class="form-select" id="category" name="category" title="Filter by product category">
                                 <option value="">All Categories</option>
                                 {% for category in categories %}
                                     <option value="{{ category.id }}" {{ current_category == category.id ? 'selected' : '' }}>
@@ -37,83 +38,182 @@
                                 {% endfor %}
                             </select>
                         </div>
+
+                        <!-- Price Range Filter -->
+                        <div class="mb-3">
+                            <label for="price_min" class="form-label">Price Range</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <input type="number" class="form-control" id="price_min" name="price_min" 
+                                           placeholder="Min" min="0" step="0.01" title="Minimum price">
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" class="form-control" id="price_max" name="price_max" 
+                                           placeholder="Max" min="0" step="0.01" title="Maximum price">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sort Options -->
+                        <div class="mb-3">
+                            <label for="sort" class="form-label">Sort By</label>
+                            <select class="form-select" id="sort" name="sort" title="Sort products">
+                                <option value="name">Name A-Z</option>
+                                <option value="name_desc">Name Z-A</option>
+                                <option value="price">Price Low to High</option>
+                                <option value="price_desc">Price High to Low</option>
+                                <option value="rating">Highest Rated</option>
+                                <option value="newest">Newest First</option>
+                            </select>
+                        </div>
                         
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="bi bi-funnel"></i> Apply Filters
-                        </button>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary" title="Apply all filters">
+                                <i class="bi bi-funnel"></i> Apply Filters
+                            </button>
+                            <a href="{{ path('app_products') }}" class="btn btn-outline-secondary" title="Clear all filters">
+                                <i class="bi bi-arrow-clockwise"></i> Clear Filters
+                            </a>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
         
-        <!-- Product grid -->
+        <!-- Enhanced Product grid -->
         <div class="col-md-9">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>
-                    <i class="bi bi-grid"></i> Products
-                    {% if search %}
-                        <small class="text-muted">Search: "{{ search }}"</small>
-                    {% endif %}
-                </h2>
-                <span class="text-muted">{{ products|length }} products found</span>
+                <div>
+                    <h2>
+                        <i class="bi bi-grid"></i> Products
+                        {% if search %}
+                            <small class="text-muted">Search: "{{ search }}"</small>
+                        {% endif %}
+                    </h2>
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-info-circle"></i> 
+                        {{ products|length }} product{{ products|length != 1 ? 's' : '' }} found
+                        {% if current_category %}
+                            in {{ categories|filter(c => c.id == current_category)|first.name }}
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary" id="grid-view" title="Grid view">
+                        <i class="bi bi-grid-3x3-gap"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" id="list-view" title="List view">
+                        <i class="bi bi-list"></i>
+                    </button>
+                </div>
             </div>
             
             {% if products|length > 0 %}
-                <div class="row">
+                <div class="row" id="products-container">
                     {% for product in products %}
-                        <div class="col-md-4 mb-4">
-                            <div class="card h-100 d-flex flex-column product-card">
-                                {% if product.mainImage %}
-                                    <img src="{{ product.mainImage.imagePath }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
-                                {% else %}
-                                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                                        <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                        <div class="col-md-4 mb-4 product-item">
+                            <div class="card h-100 d-flex flex-column product-card" 
+                                 data-product-id="{{ product.id }}" 
+                                 title="{{ product.name }}">
+                                
+                                <!-- Product Image with Quick Actions -->
+                                <div class="position-relative">
+                                    {% if product.mainImage %}
+                                        <img src="{{ product.mainImage.imagePath }}" class="card-img-top" 
+                                             alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                                             style="height: 200px;">
+                                            <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <!-- Quick Action Overlay -->
+                                    <div class="position-absolute top-0 end-0 m-2">
+                                        <button class="btn btn-sm btn-light rounded-circle wishlist-btn" 
+                                                data-product-id="{{ product.id }}" 
+                                                title="Add to wishlist">
+                                            <i class="bi bi-heart"></i>
+                                        </button>
                                     </div>
-                                {% endif %}
+                                    
+                                    <!-- Stock Status Badge -->
+                                    {% if product.stock <= 10 and product.stock > 0 %}
+                                        <div class="position-absolute top-0 start-0 m-2">
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="bi bi-exclamation-triangle"></i> Only {{ product.stock }} left!
+                                            </span>
+                                        </div>
+                                    {% elseif product.stock == 0 %}
+                                        <div class="position-absolute top-0 start-0 m-2">
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-x-circle"></i> Out of stock
+                                            </span>
+                                        </div>
+                                    {% endif %}
+                                </div>
                                 
                                 <div class="card-body d-flex flex-column">
                                     <h5 class="card-title">{{ product.name }}</h5>
                                     <p class="card-text text-muted flex-grow-1">{{ product.description|slice(0, 100) }}...</p>
                                     
+                                    <!-- Enhanced Rating Display -->
                                     <div class="mb-2">
                                         {% if product.averageRating > 0 %}
-                                            <div class="text-warning">
-                                                {% for i in 1..5 %}
-                                                    <i class="bi bi-star{{ i <= product.averageRating ? '-fill' : '' }}"></i>
-                                                {% endfor %}
-                                                <small class="text-muted">({{ product.averageRating }})</small>
+                                            <div class="d-flex align-items-center">
+                                                <div class="text-warning me-2">
+                                                    {% for i in 1..5 %}
+                                                        <i class="bi bi-star{{ i <= product.averageRating ? '-fill' : '' }}"></i>
+                                                    {% endfor %}
+                                                </div>
+                                                <small class="text-muted">
+                                                    {{ product.averageRating|number_format(1) }} 
+                                                    ({{ product.reviews|length }} review{{ product.reviews|length != 1 ? 's' : '' }})
+                                                </small>
                                             </div>
+                                        {% else %}
+                                            <small class="text-muted">
+                                                <i class="bi bi-star"></i> No reviews yet
+                                            </small>
                                         {% endif %}
                                     </div>
                                     
+                                    <!-- Enhanced Price Display -->
                                     <div class="d-flex justify-content-between align-items-center mt-auto">
                                         <div>
-                                            <span class="h5 price mb-0">${{ product.price|number_format(2) }}</span>
+                                            <span class="h5 price mb-0 text-primary">{{ currency_symbol() }}{{ product.price|number_format(2) }}</span>
                                             {% if product.comparePrice > product.price %}
-                                                <small class="text-muted text-decoration-line-through">${{ product.comparePrice|number_format(2) }}</small>
+                                                <small class="text-muted text-decoration-line-through d-block">
+                                                    {{ currency_symbol() }}{{ product.comparePrice|number_format(2) }}
+                                                </small>
+                                                <small class="text-success">
+                                                    <i class="bi bi-tag"></i> 
+                                                    {{ ((product.comparePrice - product.price) / product.comparePrice * 100)|round }}% off
+                                                </small>
                                             {% endif %}
                                         </div>
                                         <div class="btn-group">
-                                            <a href="{{ path('app_product_show', {id: product.id}) }}" class="btn btn-outline-primary btn-sm">
+                                            <a href="{{ path('app_product_show', {id: product.id}) }}" 
+                                               class="btn btn-outline-primary btn-sm" 
+                                               title="View product details">
                                                 <i class="bi bi-eye"></i> View
                                             </a>
-                                            <form method="post" action="{{ path('app_cart_add', {id: product.id}) }}" class="d-inline">
-                                                <button type="submit" class="btn btn-primary btn-sm">
-                                                    <i class="bi bi-cart-plus"></i> Add
+                                            {% if product.stock > 0 %}
+                                                <form method="post" action="{{ path('app_cart_add', {id: product.id}) }}" 
+                                                      class="d-inline" data-loading="true">
+                                                    <button type="submit" class="btn btn-primary btn-sm" 
+                                                            title="Add to cart">
+                                                        <i class="bi bi-cart-plus"></i> Add
+                                                    </button>
+                                                </form>
+                                            {% else %}
+                                                <button class="btn btn-secondary btn-sm" disabled 
+                                                        title="Product is out of stock">
+                                                    <i class="bi bi-cart-x"></i> Out of Stock
                                                 </button>
-                                            </form>
+                                            {% endif %}
                                         </div>
                                     </div>
-                                    
-                                    {% if product.stock <= 10 and product.stock > 0 %}
-                                        <small class="text-warning">
-                                            <i class="bi bi-exclamation-triangle"></i> Only {{ product.stock }} left!
-                                        </small>
-                                    {% elseif product.stock == 0 %}
-                                        <small class="text-danger">
-                                            <i class="bi bi-x-circle"></i> Out of stock
-                                        </small>
-                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -124,11 +224,142 @@
                     <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
                     <h3 class="text-muted mt-3">No products found</h3>
                     <p class="text-muted">Try adjusting your search criteria or browse all products.</p>
-                    <a href="{{ path('app_products') }}" class="btn btn-primary">
-                        <i class="bi bi-arrow-left"></i> Back to Products
-                    </a>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="{{ path('app_products') }}" class="btn btn-primary" title="View all products">
+                            <i class="bi bi-arrow-left"></i> Back to Products
+                        </a>
+                        <a href="{{ path('app_categories') }}" class="btn btn-outline-primary" title="Browse by category">
+                            <i class="bi bi-tags"></i> Browse Categories
+                        </a>
+                    </div>
                 </div>
             {% endif %}
         </div>
     </div>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+.product-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.wishlist-btn {
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.wishlist-btn:hover {
+    opacity: 1;
+}
+
+.wishlist-btn.active {
+    color: #dc3545;
+}
+
+.sticky-top {
+    z-index: 1020;
+}
+
+/* List view styles */
+.list-view .product-item {
+    width: 100%;
+}
+
+.list-view .product-card {
+    flex-direction: row;
+}
+
+.list-view .card-img-top {
+    width: 200px;
+    height: 150px;
+}
+
+/* Loading animation */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+</style>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // View toggle functionality
+    const gridViewBtn = document.getElementById('grid-view');
+    const listViewBtn = document.getElementById('list-view');
+    const productsContainer = document.getElementById('products-container');
+    
+    gridViewBtn.addEventListener('click', function() {
+        productsContainer.classList.remove('list-view');
+        gridViewBtn.classList.add('btn-secondary');
+        gridViewBtn.classList.remove('btn-outline-secondary');
+        listViewBtn.classList.add('btn-outline-secondary');
+        listViewBtn.classList.remove('btn-secondary');
+    });
+    
+    listViewBtn.addEventListener('click', function() {
+        productsContainer.classList.add('list-view');
+        listViewBtn.classList.add('btn-secondary');
+        listViewBtn.classList.remove('btn-outline-secondary');
+        gridViewBtn.classList.add('btn-outline-secondary');
+        gridViewBtn.classList.remove('btn-secondary');
+    });
+    
+    // Wishlist functionality
+    document.querySelectorAll('.wishlist-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const productId = this.dataset.productId;
+            const icon = this.querySelector('i');
+            
+            // Toggle wishlist state
+            this.classList.toggle('active');
+            if (this.classList.contains('active')) {
+                icon.classList.remove('bi-heart');
+                icon.classList.add('bi-heart-fill');
+                this.title = 'Remove from wishlist';
+            } else {
+                icon.classList.remove('bi-heart-fill');
+                icon.classList.add('bi-heart');
+                this.title = 'Add to wishlist';
+            }
+            
+            // Here you would typically make an AJAX call to save the wishlist state
+            console.log('Wishlist toggle for product:', productId);
+        });
+    });
+    
+    // Product card click to view details
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Don't trigger if clicking on buttons or links
+            if (e.target.closest('button, a, .wishlist-btn')) {
+                return;
+            }
+            
+            const productId = this.dataset.productId;
+            window.location.href = `/products/${productId}`;
+        });
+    });
+    
+    // Auto-submit form on select change
+    document.getElementById('category').addEventListener('change', function() {
+        this.closest('form').submit();
+    });
+    
+    document.getElementById('sort').addEventListener('change', function() {
+        this.closest('form').submit();
+    });
+});
+</script>
 {% endblock %} 
