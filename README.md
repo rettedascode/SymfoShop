@@ -1,17 +1,20 @@
 # SymfoShop - E-commerce Platform
 
-A modern e-commerce platform built with Symfony 7.3, featuring a complete online shopping experience with user management, product catalog, shopping cart, order processing, and admin panel.
+A modern e-commerce platform built with Symfony 7.3, featuring a complete online shopping experience with user management, product catalog, shopping cart, order processing, and admin panel. Enhanced with intuitive UX design and powerful configuration management.
 
 ## 🚀 Features
 
 ### Customer Features
-- **Product Catalog**: Browse products by categories with search and filtering
-- **Product Details**: View detailed product information with images and reviews
-- **Shopping Cart**: Add/remove items, update quantities, and manage cart
+- **Enhanced Product Catalog**: Browse products by categories with advanced search, filtering, and sorting
+- **Intuitive Product Cards**: Interactive product cards with hover effects, wishlist functionality, and quick actions
+- **Smart Search & Filters**: Price range filtering, category filtering, and multiple sorting options
+- **Product Details**: View detailed product information with images, reviews, and ratings
+- **Shopping Cart**: Add/remove items, update quantities, and manage cart with real-time feedback
 - **User Authentication**: Registration, login, and profile management
 - **Checkout Process**: Complete order placement with address management
-- **Order History**: View past orders and their status
-- **Product Reviews**: Rate and review products
+- **Order History**: View past orders and their status with detailed order pages
+- **Product Reviews**: Rate and review products with interactive star rating slider
+- **Category Browsing**: Dedicated categories page with product counts and visual navigation
 
 ### Admin Features
 - **EasyAdmin Integration**: Powerful admin panel for managing all entities
@@ -19,6 +22,8 @@ A modern e-commerce platform built with Symfony 7.3, featuring a complete online
 - **Order Management**: Process and track customer orders
 - **User Management**: Manage customer accounts and permissions
 - **Inventory Control**: Track product stock and availability
+- **Configuration Management**: Database-driven configuration system for easy customization
+- **Sample Data Management**: Built-in commands for creating sample data and clearing database
 
 ### Technical Features
 - **Modern Symfony 7.3**: Latest Symfony framework with best practices
@@ -26,7 +31,21 @@ A modern e-commerce platform built with Symfony 7.3, featuring a complete online
 - **Webpack Encore**: Modern asset compilation and management
 - **Security Bundle**: Robust authentication and authorization
 - **Docker Support**: Complete containerized development environment
-- **Responsive Design**: Mobile-friendly user interface
+- **Responsive Design**: Mobile-friendly user interface with Bootstrap 5
+- **Dark Mode Support**: Toggle between light and dark themes
+- **Configuration System**: Database-driven configuration with caching
+- **Enhanced UX**: Loading states, tooltips, auto-dismiss alerts, and smooth animations
+
+### UX Enhancements
+- **Interactive Elements**: Hover effects, smooth transitions, and visual feedback
+- **Loading States**: Loading overlays for form submissions and page transitions
+- **Smart Navigation**: Sticky sidebars, back-to-top buttons, and breadcrumb navigation
+- **Accessibility**: ARIA labels, keyboard navigation, and screen reader support
+- **Auto-dismiss Alerts**: Flash messages that automatically disappear
+- **Enhanced Tooltips**: Contextual help and information throughout the interface
+- **Grid/List View Toggle**: Multiple viewing options for product browsing
+- **Wishlist Functionality**: Heart icons for saving favorite products
+- **Stock Indicators**: Visual badges for low stock and out-of-stock items
 
 ## 📋 Requirements
 
@@ -77,7 +96,12 @@ A modern e-commerce platform built with Symfony 7.3, featuring a complete online
    npm run build
    ```
 
-7. **Start the development server**
+7. **Initialize the application**
+   ```bash
+   php bin/console app:setup
+   ```
+
+8. **Start the development server**
    ```bash
    symfony server:start
    ```
@@ -95,27 +119,39 @@ A modern e-commerce platform built with Symfony 7.3, featuring a complete online
    docker-compose up -d
    ```
 
-3. **Install dependencies inside container**
+3. **Deploy the application**
    ```bash
-   docker-compose exec php composer install
-   docker-compose exec php npm install
+   # Windows
+   docker/deploy.bat
+   
+   # Linux/macOS
+   docker/deploy.sh
    ```
 
-4. **Run database migrations**
-   ```bash
-   docker-compose exec php php bin/console doctrine:migrations:migrate
-   ```
-
-5. **Build assets**
-   ```bash
-   docker-compose exec php npm run build
-   ```
-
-6. **Access the application**
+4. **Access the application**
    - Frontend: http://localhost
    - Admin Panel: http://localhost/admin
 
 ## 🎯 Usage
+
+### Application Setup Commands
+
+```bash
+# Initialize application with sample data and configuration
+php bin/console app:setup
+
+# Initialize configuration only
+php bin/console app:setup --skip-sample-data
+
+# Create sample data only
+php bin/console app:setup --skip-config
+
+# Clear all data from database
+php bin/console app:clear-all-data
+
+# Clear all data but keep admin users
+php bin/console app:clear-all-data --keep-admin
+```
 
 ### Development Commands
 
@@ -158,16 +194,35 @@ SymfoShop/
 ├── assets/                 # Frontend assets (JS, CSS, images)
 ├── bin/                   # Symfony console and other binaries
 ├── config/                # Application configuration
-├── docker/                # Docker configuration files
+├── docker/                # Docker configuration and deployment scripts
+│   ├── deploy.bat         # Windows deployment script
+│   └── deploy.sh          # Linux/macOS deployment script
 ├── migrations/            # Database migrations
 ├── public/                # Web root directory
 ├── src/                   # Application source code
 │   ├── Command/          # Console commands
+│   │   ├── ClearAllDataCommand.php
+│   │   ├── SetupCommand.php
+│   │   └── CreateSampleDataCommand.php
 │   ├── Controller/       # Controllers
+│   │   ├── Admin/        # EasyAdmin controllers
+│   │   ├── CategoryController.php
+│   │   ├── ProductController.php
+│   │   └── ...
 │   ├── Entity/           # Doctrine entities
-│   ├── Form/             # Form types
-│   └── Repository/       # Custom repositories
+│   │   ├── Configuration.php
+│   │   ├── Product.php
+│   │   └── ...
+│   ├── Repository/       # Custom repositories
+│   ├── Service/          # Business logic services
+│   │   └── ConfigurationService.php
+│   └── Twig/             # Twig extensions
+│       └── AppExtension.php
 ├── templates/             # Twig templates
+│   ├── category/         # Category templates
+│   ├── product/          # Product templates
+│   ├── review/           # Review templates
+│   └── ...
 ├── translations/          # Translation files
 ├── var/                   # Cache, logs, and temporary files
 ├── vendor/                # Composer dependencies
@@ -178,6 +233,26 @@ SymfoShop/
 ```
 
 ## 🔧 Configuration
+
+### Database-Driven Configuration System
+The application uses a database-driven configuration system that allows easy customization without code changes:
+
+```bash
+# Access configuration through admin panel
+http://localhost/admin -> Configuration
+
+# Or use the service in code
+$configurationService->get('shop.name');
+$configurationService->getShopName();
+```
+
+### Available Configuration Keys
+- `shop.name` - Shop name
+- `shop.description` - Shop description
+- `shop.email` - Contact email
+- `shop.phone` - Contact phone
+- `shop.currency` - Currency code
+- `shop.currency_symbol` - Currency symbol
 
 ### Database Configuration
 The application uses MySQL 8.0. Configure your database connection in `.env.local`:
@@ -196,6 +271,33 @@ MAILER_DSN=smtp://localhost:1025
 ### Security Configuration
 The application includes user authentication and authorization. Configure security settings in `config/packages/security.yaml`.
 
+## 🎨 User Experience Features
+
+### Enhanced Navigation
+- **Search Bar**: Quick product search in navigation
+- **Sticky Sidebar**: Filters that follow scroll
+- **Breadcrumb Navigation**: Clear page hierarchy
+- **Back to Top Button**: Easy navigation on long pages
+
+### Interactive Product Browsing
+- **Grid/List View Toggle**: Multiple viewing options
+- **Advanced Filtering**: Price range, category, and sorting
+- **Wishlist Functionality**: Save favorite products
+- **Quick Actions**: Add to cart, view details, wishlist
+- **Stock Indicators**: Visual feedback for availability
+
+### Smart Feedback Systems
+- **Loading Overlays**: Visual feedback during operations
+- **Auto-dismiss Alerts**: Flash messages with timeout
+- **Tooltips**: Contextual help throughout interface
+- **Hover Effects**: Smooth animations and transitions
+
+### Accessibility Features
+- **Keyboard Navigation**: Full keyboard support
+- **ARIA Labels**: Screen reader compatibility
+- **Focus Management**: Proper focus handling
+- **High Contrast**: Dark mode support
+
 ## 🧪 Testing
 
 ```bash
@@ -208,7 +310,27 @@ php bin/phpunit --coverage-html var/coverage
 
 ## 📦 Deployment
 
-### Production Build
+### Automated Deployment (Docker)
+
+The project includes automated deployment scripts:
+
+```bash
+# Windows
+docker/deploy.bat
+
+# Linux/macOS
+docker/deploy.sh
+```
+
+These scripts handle:
+- Container management
+- Dependency installation
+- Asset building
+- Database migrations
+- Cache clearing
+- Application setup
+
+### Manual Production Build
 
 1. **Install dependencies**
    ```bash
@@ -228,7 +350,12 @@ php bin/phpunit --coverage-html var/coverage
    php bin/console doctrine:migrations:migrate --env=prod
    ```
 
-4. **Clear and warm cache**
+4. **Initialize application**
+   ```bash
+   php bin/console app:setup --env=prod
+   ```
+
+5. **Clear and warm cache**
    ```bash
    php bin/console cache:clear --env=prod
    php bin/console cache:warmup --env=prod
@@ -254,6 +381,7 @@ If you encounter any issues or have questions:
 2. Review the application logs in `var/log/`
 3. Ensure all dependencies are properly installed
 4. Verify your database configuration
+5. Check the configuration system in the admin panel
 
 ## 🔄 Updates
 
@@ -271,8 +399,22 @@ php bin/console doctrine:migrations:migrate
 
 # Clear cache
 php bin/console cache:clear
+
+# Rebuild assets
+npm run build
 ```
+
+## 🎯 Key Improvements in This Version
+
+- ✅ **Enhanced UX**: Intuitive navigation, interactive elements, and smooth animations
+- ✅ **Configuration System**: Database-driven configuration management
+- ✅ **Category Management**: Dedicated categories page with product counts
+- ✅ **Review System**: Interactive star rating slider and review management
+- ✅ **Order Management**: Detailed order pages and status tracking
+- ✅ **Deployment Automation**: Streamlined deployment scripts for Docker
+- ✅ **Accessibility**: Full keyboard navigation and screen reader support
+- ✅ **Performance**: Caching, loading states, and optimized asset building
 
 ---
 
-**Built with ❤️ using Symfony 7.3**
+**Built with ❤️ using Symfony 7.3 and modern web technologies**
