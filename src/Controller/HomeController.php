@@ -17,10 +17,14 @@ class HomeController extends AbstractController
         $categories = $categoryRepository->findRootCategories();
         $latestProducts = $productRepository->findActiveProducts();
 
+        // Get shop name from parameter (which reads from APP_NAME env variable)
+        $shopName = $this->getParameter('app.name');
+
         return $this->render('home/index.html.twig', [
             'featured_products' => $featuredProducts,
             'categories' => $categories,
             'latest_products' => array_slice($latestProducts, 0, 12),
+            'shop_name' => $shopName,
         ]);
     }
 } 

@@ -130,6 +130,44 @@ if %errorlevel% neq 0 (
 )
 echo ✅ Database migrations completed
 
+REM Ask for data management options
+echo.
+echo 📊 Data Management Options:
+echo    1. Keep existing data
+echo    2. Clear all data and start fresh
+echo    3. Clear all data except admin users
+set /p data_option="🤔 Choose an option (1-3): "
+
+if "%data_option%"=="2" (
+    echo 🗑️ Clearing all data...
+    docker-compose exec -T php php bin/console app:clear-all-data --force
+    if %errorlevel% neq 0 (
+        echo ⚠️ Warning: Failed to clear data, but deployment continues...
+    ) else (
+        echo ✅ All data cleared
+    )
+) else if "%data_option%"=="3" (
+    echo 🗑️ Clearing all data except admin users...
+    docker-compose exec -T php php bin/console app:clear-all-data --force --keep-admin
+    if %errorlevel% neq 0 (
+        echo ⚠️ Warning: Failed to clear data, but deployment continues...
+    ) else (
+        echo ✅ Data cleared (admin users preserved)
+    )
+) else (
+    echo ℹ️ Keeping existing data
+)
+
+REM Run application setup
+echo.
+echo 🚀 Running application setup...
+docker-compose exec -T php php bin/console app:setup --force
+if %errorlevel% neq 0 (
+    echo ⚠️ Warning: Failed to run application setup, but deployment continues...
+) else (
+    echo ✅ Application setup completed
+)
+
 REM Clear and warm cache
 echo.
 echo 🧹 Clearing and warming application cache...
@@ -147,19 +185,6 @@ docker-compose exec -T php chmod -R 755 var/
 docker-compose exec -T php chmod -R 755 public/uploads/
 docker-compose exec -T php chmod -R 755 public/build/
 echo ✅ Permissions set
-
-REM Ask for sample data
-echo.
-set /p create_sample="🤔 Do you want to create sample data? (y/n): "
-if /i "%create_sample%"=="y" (
-    echo 📊 Creating sample data...
-    docker-compose exec -T php php bin/console app:create-sample-data
-    if %errorlevel% neq 0 (
-        echo ⚠️ Warning: Failed to create sample data, but deployment continues...
-    ) else (
-        echo ✅ Sample data created
-    )
-)
 
 REM Health check
 echo.
@@ -197,6 +222,9 @@ echo    - Access PHP container: docker-compose exec php bash
 echo    - Access MySQL: docker-compose exec mysql mysql -u symfoshop -p symfoshop
 echo    - Clear cache: docker-compose exec php php bin/console cache:clear
 echo    - Run migrations: docker-compose exec php php bin/console doctrine:migrations:migrate
+echo    - Clear all data: docker-compose exec php php bin/console app:clear-all-data --force
+echo    - Run setup: docker-compose exec php php bin/console app:setup --force
+echo    - Manage configuration: http://localhost/admin?crudAction=index&crudControllerFqcn=App\Controller\Admin\ConfigurationCrudController
 echo.
 echo 🚀 Your SymfoShop application is ready!
 echo.

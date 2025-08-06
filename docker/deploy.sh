@@ -70,6 +70,39 @@ health_check() {
     fi
 }
 
+# Function to handle data management
+handle_data_management() {
+    echo
+    print_status "📊 Data Management Options:"
+    echo "    1. Keep existing data"
+    echo "    2. Clear all data and start fresh"
+    echo "    3. Clear all data except admin users"
+    read -p "🤔 Choose an option (1-3): " -n 1 -r
+    echo
+    
+    case $REPLY in
+        2)
+            print_status "🗑️ Clearing all data..."
+            if ! docker-compose exec -T php php bin/console app:clear-all-data --force; then
+                print_warning "⚠️ Warning: Failed to clear data, but deployment continues..."
+            else
+                print_success "✅ All data cleared"
+            fi
+            ;;
+        3)
+            print_status "🗑️ Clearing all data except admin users..."
+            if ! docker-compose exec -T php php bin/console app:clear-all-data --force --keep-admin; then
+                print_warning "⚠️ Warning: Failed to clear data, but deployment continues..."
+            else
+                print_success "✅ Data cleared (admin users preserved)"
+            fi
+            ;;
+        *)
+            print_status "ℹ️ Keeping existing data"
+            ;;
+    esac
+}
+
 # Main deployment script
 main() {
     echo
@@ -170,6 +203,18 @@ main() {
     fi
     print_success "✅ Database migrations completed"
 
+    # Handle data management
+    handle_data_management
+
+    # Run application setup
+    echo
+    print_status "🚀 Running application setup..."
+    if ! docker-compose exec -T php php bin/console app:setup --force; then
+        print_warning "⚠️ Warning: Failed to run application setup, but deployment continues..."
+    else
+        print_success "✅ Application setup completed"
+    fi
+
     # Clear and warm cache
     echo
     print_status "🧹 Clearing and warming application cache..."
@@ -187,19 +232,6 @@ main() {
     docker-compose exec -T php chmod -R 755 public/uploads/
     docker-compose exec -T php chmod -R 755 public/build/
     print_success "✅ Permissions set"
-
-    # Ask for sample data
-    echo
-    read -p "🤔 Do you want to create sample data? (y/n): " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        print_status "📊 Creating sample data..."
-        if ! docker-compose exec -T php php bin/console app:create-sample-data; then
-            print_warning "⚠️ Warning: Failed to create sample data, but deployment continues..."
-        else
-            print_success "✅ Sample data created"
-        fi
-    fi
 
     # Perform health check
     health_check
@@ -228,6 +260,9 @@ main() {
     echo "   - Access MySQL: docker-compose exec mysql mysql -u symfoshop -p symfoshop"
     echo "   - Clear cache: docker-compose exec php php bin/console cache:clear"
     echo "   - Run migrations: docker-compose exec php php bin/console doctrine:migrations:migrate"
+    echo "   - Clear all data: docker-compose exec php php bin/console app:clear-all-data --force"
+    echo "   - Run setup: docker-compose exec php php bin/console app:setup --force"
+    echo "   - Manage configuration: http://localhost/admin?crudAction=index&crudControllerFqcn=App\Controller\Admin\ConfigurationCrudController"
     echo
     print_success "🚀 Your SymfoShop application is ready!"
     echo
