@@ -131,10 +131,19 @@ class ConfigurationRepository extends ServiceEntityRepository
             return $value;
         }
 
-        // Fallback to environment variable
-        $envValue = $_ENV[$envKey] ?? null;
+        // Fallback to environment variable (only if it exists)
+        $envValue = null;
         
-        if ($envValue !== null) {
+        // Try to get from $_ENV first
+        if (isset($_ENV[$envKey])) {
+            $envValue = $_ENV[$envKey];
+        }
+        // Try to get from getenv() as fallback
+        elseif (getenv($envKey) !== false) {
+            $envValue = getenv($envKey);
+        }
+        
+        if ($envValue !== null && $envValue !== '') {
             // Store the env value in database for future use
             $this->setValue($key, $envValue, 'string', "Auto-imported from environment variable: $envKey");
             return $envValue;

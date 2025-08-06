@@ -1,0 +1,111 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Orders - {{ shop_name() }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">My Orders</li>
+                </ol>
+            </nav>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-receipt"></i> My Orders</h1>
+                <a href="{{ path('app_home') }}" class="btn btn-primary">
+                    <i class="bi bi-shop"></i> Continue Shopping
+                </a>
+            </div>
+
+            {% if orders|length == 0 %}
+            <div class="text-center py-5">
+                <i class="bi bi-receipt display-1 text-muted"></i>
+                <h3 class="mt-3">No Orders Yet</h3>
+                <p class="text-muted">You haven't placed any orders yet.</p>
+                <a href="{{ path('app_home') }}" class="btn btn-primary">
+                    <i class="bi bi-shop"></i> Start Shopping
+                </a>
+            </div>
+            {% else %}
+            <div class="row">
+                {% for order in orders %}
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-0">
+                                        <i class="bi bi-receipt"></i> Order #{{ order.id }}
+                                    </h5>
+                                    <small class="text-muted">{{ order.createdAt|date('F j, Y g:i A') }}</small>
+                                </div>
+                                <div>
+                                    <span class="badge bg-{{ order.status == 'pending' ? 'warning' : (order.status == 'completed' ? 'success' : (order.status == 'cancelled' ? 'danger' : 'info')) }}">
+                                        {{ order.status|title }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="row">
+                                        {% for item in order.orderItems|slice(0, 3) %}
+                                        <div class="col-md-4 mb-2">
+                                            <div class="d-flex align-items-center">
+                                                {% if item.product.images|length > 0 %}
+                                                <img src="{{ asset('uploads/products/' ~ item.product.images.first.filename) }}" 
+                                                     alt="{{ item.product.name }}" 
+                                                     class="me-2" 
+                                                     style="width: 40px; height: 40px; object-fit: cover;">
+                                                {% endif %}
+                                                <div>
+                                                    <h6 class="mb-0 small">{{ item.product.name }}</h6>
+                                                    <small class="text-muted">Qty: {{ item.quantity }}</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                        {% if order.orderItems|length > 3 %}
+                                        <div class="col-md-4 mb-2">
+                                            <div class="text-center">
+                                                <small class="text-muted">
+                                                    +{{ order.orderItems|length - 3 }} more items
+                                                </small>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-end">
+                                        <h5 class="mb-2">{{ currency_symbol() }}{{ order.total|number_format(2) }}</h5>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ path('app_order_show', {'id': order.id}) }}" 
+                                               class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-eye"></i> View Details
+                                            </a>
+                                            {% if order.canBeCancelled() %}
+                                            <a href="{{ path('app_order_cancel', {'id': order.id}) }}" 
+                                               class="btn btn-outline-danger btn-sm"
+                                               onclick="return confirm('Are you sure you want to cancel this order?')">
+                                                <i class="bi bi-x-circle"></i> Cancel
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

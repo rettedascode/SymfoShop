@@ -229,31 +229,73 @@ class ConfigurationService
      */
     public function getShopName(): string
     {
+        // First try to get from database
+        $value = $this->get('shop.name');
+        if ($value !== null) {
+            return $value;
+        }
+        
+        // Then try environment variable as fallback
         return $this->getWithEnvFallback('shop.name', 'APP_NAME', 'SymfoShop');
     }
 
     public function getShopDescription(): string
     {
+        // First try to get from database
+        $value = $this->get('shop.description');
+        if ($value !== null) {
+            return $value;
+        }
+        
+        // Then try environment variable as fallback
         return $this->getWithEnvFallback('shop.description', 'SHOP_DESCRIPTION', 'Your trusted online shopping destination.');
     }
 
     public function getShopEmail(): string
     {
+        // First try to get from database
+        $value = $this->get('shop.email');
+        if ($value !== null) {
+            return $value;
+        }
+        
+        // Then try environment variable as fallback
         return $this->getWithEnvFallback('shop.email', 'SHOP_EMAIL', 'info@symfoshop.com');
     }
 
     public function getShopPhone(): string
     {
+        // First try to get from database
+        $value = $this->get('shop.phone');
+        if ($value !== null) {
+            return $value;
+        }
+        
+        // Then try environment variable as fallback
         return $this->getWithEnvFallback('shop.phone', 'SHOP_PHONE', '+1-555-0123');
     }
 
     public function getCurrency(): string
     {
+        // First try to get from database
+        $value = $this->get('shop.currency');
+        if ($value !== null) {
+            return $value;
+        }
+        
+        // Then try environment variable as fallback
         return $this->getWithEnvFallback('shop.currency', 'SHOP_CURRENCY', 'USD');
     }
 
     public function getCurrencySymbol(): string
     {
+        // First try to get from database
+        $value = $this->get('shop.currency_symbol');
+        if ($value !== null) {
+            return $value;
+        }
+        
+        // Then try environment variable as fallback
         return $this->getWithEnvFallback('shop.currency_symbol', 'SHOP_CURRENCY_SYMBOL', '$');
     }
 } 
