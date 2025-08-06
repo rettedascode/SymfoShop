@@ -1,22 +1,6 @@
 @echo off
 echo 🚀 Starting SymfoShop Docker Deployment...
 
-REM Check if Docker is running
-docker info >nul 2>&1
-if errorlevel 1 (
-    echo ❌ Docker is not running. Please start Docker first.
-    pause
-    exit /b 1
-)
-
-REM Check if Docker Compose is available
-docker-compose --version >nul 2>&1
-if errorlevel 1 (
-    echo ❌ Docker Compose is not installed. Please install Docker Compose first.
-    pause
-    exit /b 1
-)
-
 REM Create necessary directories
 echo 📁 Creating necessary directories...
 if not exist "var\cache" mkdir var\cache
