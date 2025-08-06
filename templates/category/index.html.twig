@@ -1,0 +1,165 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Categories - {{ shop_name() }}{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ path('app_home') }}" title="Go to homepage">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Categories</li>
+                    </ol>
+                </nav>
+                
+                <div class="text-center">
+                    <h1 class="display-5 mb-3">
+                        <i class="bi bi-tags text-primary"></i> Browse Categories
+                    </h1>
+                    <p class="lead text-muted">
+                        Discover products organized by category to find exactly what you're looking for
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories Grid -->
+        {% if categories|length > 0 %}
+            <div class="row">
+                {% for category in categories %}
+                    <div class="col-md-4 col-lg-3 mb-4">
+                        <div class="card h-100 category-card" 
+                             data-category-id="{{ category.id }}"
+                             title="{{ category.name }}">
+                            
+                            <div class="card-body text-center">
+                                <div class="category-icon mb-3">
+                                    <i class="bi bi-folder text-primary" style="font-size: 3rem;"></i>
+                                </div>
+                                
+                                <h5 class="card-title">{{ category.name }}</h5>
+                                
+                                {% if category.description %}
+                                    <p class="card-text text-muted small">
+                                        {{ category.description|slice(0, 80) }}{% if category.description|length > 80 %}...{% endif %}
+                                    </p>
+                                {% endif %}
+                                
+                                <div class="category-stats mb-3">
+                                    <span class="badge bg-primary">
+                                        <i class="bi bi-box"></i> 
+                                        {{ category.productCount|default(0) }} product{{ category.productCount|default(0) != 1 ? 's' : '' }}
+                                    </span>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <a href="{{ path('app_products_by_category', {id: category.id}) }}" 
+                                       class="btn btn-outline-primary" 
+                                       title="Browse {{ category.name }} products">
+                                        <i class="bi bi-arrow-right"></i> Browse Products
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-5">
+                <i class="bi bi-tags text-muted" style="font-size: 4rem;"></i>
+                <h3 class="text-muted mt-3">No categories available</h3>
+                <p class="text-muted">Categories will appear here once they are added to the system.</p>
+                <a href="{{ path('app_products') }}" class="btn btn-primary" title="Browse all products">
+                    <i class="bi bi-grid"></i> Browse All Products
+                </a>
+            </div>
+        {% endif %}
+
+        <!-- Quick Navigation -->
+        {% if root_categories|length > 0 %}
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-diagram-3"></i> Category Structure
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                {% for rootCategory in root_categories %}
+                                    <div class="col-md-6 col-lg-4 mb-3">
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-folder text-primary me-2"></i>
+                                            <a href="{{ path('app_products_by_category', {id: rootCategory.id}) }}" 
+                                               class="text-decoration-none" 
+                                               title="Browse {{ rootCategory.name }}">
+                                                {{ rootCategory.name }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+<style>
+.category-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.category-icon {
+    transition: transform 0.2s ease;
+}
+
+.category-card:hover .category-icon {
+    transform: scale(1.1);
+}
+
+.category-stats .badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .category-card {
+        margin-bottom: 1rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Category card click to view products
+    document.querySelectorAll('.category-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Don't trigger if clicking on links or buttons
+            if (e.target.closest('a, button')) {
+                return;
+            }
+            
+            const categoryId = this.dataset.categoryId;
+            window.location.href = `/products/category/${categoryId}`;
+        });
+    });
+});
+</script>
+{% endblock %} 

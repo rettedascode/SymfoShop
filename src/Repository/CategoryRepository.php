@@ -71,16 +71,28 @@ class CategoryRepository extends ServiceEntityRepository
      */
     public function findCategoriesWithProductCount(): array
     {
-        return $this->createQueryBuilder('c')
-            ->select('c', 'COUNT(p.id) as productCount')
+        $qb = $this->createQueryBuilder('c')
+            ->select('c')
+            ->addSelect('COUNT(p.id) as productCount')
             ->leftJoin('c.products', 'p')
             ->andWhere('c.isActive = :active')
-            ->andWhere('p.isActive = :productActive')
             ->setParameter('active', true)
-            ->setParameter('productActive', true)
             ->groupBy('c.id')
-            ->orderBy('c.name', 'ASC')
-            ->getQuery()
-            ->getResult();
+            ->orderBy('c.name', 'ASC');
+
+        $results = $qb->getQuery()->getResult();
+        
+        // Transform the results to make productCount accessible
+        $categories = [];
+        foreach ($results as $result) {
+            if (is_array($result)) {
+                $category = $result[0];
+                $productCount = $result['productCount'];
+                $category->productCount = $productCount;
+                $categories[] = $category;
+            }
+        }
+        
+        return $categories;
     }
 } 

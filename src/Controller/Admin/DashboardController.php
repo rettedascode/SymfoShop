@@ -51,7 +51,6 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section('Reviews');
         yield MenuItem::linkToCrud('Reviews', 'fa fa-star', Review::class);
         
-        yield MenuItem::section('Configuration');y   
         yield MenuItem::linkToCrud('Configuration', 'fa fa-cog', Configuration::class);
 
         yield MenuItem::section('Site');
