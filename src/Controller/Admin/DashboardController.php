@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Address;
 use App\Entity\Category;
+use App\Entity\Configuration;
 use App\Entity\Order;
 use App\Entity\OrderItem;
 use App\Entity\Product;
@@ -50,10 +51,11 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::section('Reviews');
         yield MenuItem::linkToCrud('Reviews', 'fa fa-star', Review::class);
-        
-        yield MenuItem::linkToCrud('Configuration', 'fa fa-cog', Configuration::class);
+
+        yield MenuItem::section('Settings');
+        yield MenuItem::linkToCrud('Config', 'fa fa-cog', Configuration::class);
 
         yield MenuItem::section('Site');
         yield MenuItem::linkToRoute('Back to Website', 'fa fa-external-link', 'app_home');
     }
-} 
+}
