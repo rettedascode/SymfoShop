@@ -119,36 +119,4 @@ class ConfigurationRepository extends ServiceEntityRepository
     {
         return $this->count(['configKey' => $key]) > 0;
     }
-
-    /**
-     * Get configuration by key with fallback to environment variable
-     */
-    public function getValueWithEnvFallback(string $key, string $envKey, mixed $default = null): mixed
-    {
-        $value = $this->getValue($key);
-        
-        if ($value !== null) {
-            return $value;
-        }
-
-        // Fallback to environment variable (only if it exists)
-        $envValue = null;
-        
-        // Try to get from $_ENV first
-        if (isset($_ENV[$envKey])) {
-            $envValue = $_ENV[$envKey];
-        }
-        // Try to get from getenv() as fallback
-        elseif (getenv($envKey) !== false) {
-            $envValue = getenv($envKey);
-        }
-        
-        if ($envValue !== null && $envValue !== '') {
-            // Store the env value in database for future use
-            $this->setValue($key, $envValue, 'string', "Auto-imported from environment variable: $envKey");
-            return $envValue;
-        }
-
-        return $default;
-    }
 } 

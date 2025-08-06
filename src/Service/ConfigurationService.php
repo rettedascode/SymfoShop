@@ -42,20 +42,6 @@ class ConfigurationService
     }
 
     /**
-     * Get configuration with environment variable fallback
-     */
-    public function getWithEnvFallback(string $key, string $envKey, mixed $default = null): mixed
-    {
-        $value = $this->get($key);
-        
-        if ($value !== null) {
-            return $value;
-        }
-
-        return $this->configurationRepository->getValueWithEnvFallback($key, $envKey, $default);
-    }
-
-    /**
      * Get all configuration values
      */
     public function getAll(): array
@@ -229,73 +215,31 @@ class ConfigurationService
      */
     public function getShopName(): string
     {
-        // First try to get from database
-        $value = $this->get('shop.name');
-        if ($value !== null) {
-            return $value;
-        }
-        
-        // Then try environment variable as fallback
-        return $this->getWithEnvFallback('shop.name', 'APP_NAME', 'SymfoShop');
+        return $this->get('shop.name') ?? 'SymfoShop';
     }
 
     public function getShopDescription(): string
     {
-        // First try to get from database
-        $value = $this->get('shop.description');
-        if ($value !== null) {
-            return $value;
-        }
-        
-        // Then try environment variable as fallback
-        return $this->getWithEnvFallback('shop.description', 'SHOP_DESCRIPTION', 'Your trusted online shopping destination.');
+        return $this->get('shop.description') ?? 'Your trusted online shopping destination.';
     }
 
     public function getShopEmail(): string
     {
-        // First try to get from database
-        $value = $this->get('shop.email');
-        if ($value !== null) {
-            return $value;
-        }
-        
-        // Then try environment variable as fallback
-        return $this->getWithEnvFallback('shop.email', 'SHOP_EMAIL', 'info@symfoshop.com');
+        return $this->get('shop.email') ?? 'info@symfoshop.com';
     }
 
     public function getShopPhone(): string
     {
-        // First try to get from database
-        $value = $this->get('shop.phone');
-        if ($value !== null) {
-            return $value;
-        }
-        
-        // Then try environment variable as fallback
-        return $this->getWithEnvFallback('shop.phone', 'SHOP_PHONE', '+1-555-0123');
+        return $this->get('shop.phone') ?? '+1-555-0123';
     }
 
     public function getCurrency(): string
     {
-        // First try to get from database
-        $value = $this->get('shop.currency');
-        if ($value !== null) {
-            return $value;
-        }
-        
-        // Then try environment variable as fallback
-        return $this->getWithEnvFallback('shop.currency', 'SHOP_CURRENCY', 'USD');
+        return $this->get('shop.currency') ?? 'USD';
     }
 
     public function getCurrencySymbol(): string
     {
-        // First try to get from database
-        $value = $this->get('shop.currency_symbol');
-        if ($value !== null) {
-            return $value;
-        }
-        
-        // Then try environment variable as fallback
-        return $this->getWithEnvFallback('shop.currency_symbol', 'SHOP_CURRENCY_SYMBOL', '$');
+        return $this->get('shop.currency_symbol') ?? '$';
     }
 } 
