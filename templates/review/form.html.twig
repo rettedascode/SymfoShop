@@ -1,0 +1,155 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Write a Review - {{ product.name }} - {{ shop_name() }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('app_product_show', {'id': product.id}) }}">{{ product.name }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Write Review</li>
+                </ol>
+            </nav>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="bi bi-star"></i> Write a Review</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            {% if product.images|length > 0 %}
+                            <img src="{{ asset('uploads/products/' ~ product.images.first.filename) }}" 
+                                 alt="{{ product.name }}" 
+                                 class="img-fluid rounded">
+                            {% endif %}
+                        </div>
+                        <div class="col-md-9">
+                            <h4>{{ product.name }}</h4>
+                            <p class="text-muted">{{ product.description|slice(0, 150) }}{% if product.description|length > 150 %}...{% endif %}</p>
+                            <div class="d-flex align-items-center">
+                                <span class="h5 mb-0 me-2">{{ currency_symbol() }}{{ product.price|number_format(2) }}</span>
+                                {% if product.comparePrice and product.comparePrice > product.price %}
+                                <span class="text-muted text-decoration-line-through">{{ currency_symbol() }}{{ product.comparePrice|number_format(2) }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Rating *</label>
+                            <div class="rating-input">
+                                <div class="btn-group" role="group" aria-label="Rating">
+                                    <input type="radio" class="btn-check" name="rating" id="rating1" value="1" required>
+                                    <label class="btn btn-outline-warning" for="rating1">
+                                        <i class="bi bi-star"></i> 1
+                                    </label>
+                                    
+                                    <input type="radio" class="btn-check" name="rating" id="rating2" value="2">
+                                    <label class="btn btn-outline-warning" for="rating2">
+                                        <i class="bi bi-star"></i> 2
+                                    </label>
+                                    
+                                    <input type="radio" class="btn-check" name="rating" id="rating3" value="3">
+                                    <label class="btn btn-outline-warning" for="rating3">
+                                        <i class="bi bi-star"></i> 3
+                                    </label>
+                                    
+                                    <input type="radio" class="btn-check" name="rating" id="rating4" value="4">
+                                    <label class="btn btn-outline-warning" for="rating4">
+                                        <i class="bi bi-star"></i> 4
+                                    </label>
+                                    
+                                    <input type="radio" class="btn-check" name="rating" id="rating5" value="5">
+                                    <label class="btn btn-outline-warning" for="rating5">
+                                        <i class="bi bi-star"></i> 5
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-text">Click on a star to rate this product</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Review Title *</label>
+                            <input type="text" class="form-control" id="title" name="title" required 
+                                   maxlength="100" placeholder="Brief summary of your experience">
+                            <div class="form-text">Keep it short and descriptive</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="comment" class="form-label">Review Comment *</label>
+                            <textarea class="form-control" id="comment" name="comment" rows="5" required
+                                      placeholder="Share your detailed experience with this product..."
+                                      maxlength="1000"></textarea>
+                            <div class="form-text">Be honest and helpful to other customers</div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Note:</strong> Your review will be submitted for approval before being published. 
+                            This helps us maintain quality and prevent spam.
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('app_product_show', {'id': product.id}) }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Back to Product
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send"></i> Submit Review
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.rating-input .btn-check:checked + .btn {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #000;
+}
+
+.rating-input .btn:hover {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #000;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-select 5 stars by default
+    document.getElementById('rating5').checked = true;
+    
+    // Add visual feedback for rating selection
+    const ratingInputs = document.querySelectorAll('input[name="rating"]');
+    ratingInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            // Reset all labels
+            document.querySelectorAll('.rating-input label').forEach(label => {
+                label.classList.remove('btn-warning');
+                label.classList.add('btn-outline-warning');
+            });
+            
+            // Highlight selected rating and all below it
+            const selectedRating = parseInt(this.value);
+            for (let i = 1; i <= selectedRating; i++) {
+                const label = document.querySelector(`label[for="rating${i}"]`);
+                label.classList.remove('btn-outline-warning');
+                label.classList.add('btn-warning');
+            }
+        });
+    });
+    
+    // Trigger change event to show initial state
+    document.getElementById('rating5').dispatchEvent(new Event('change'));
+});
+</script>
+{% endblock %} 

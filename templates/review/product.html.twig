@@ -1,0 +1,159 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Reviews - {{ product.name }} - {{ shop_name() }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ path('app_product_show', {'id': product.id}) }}">{{ product.name }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Reviews</li>
+                </ol>
+            </nav>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            {% if product.images|length > 0 %}
+                            <img src="{{ asset('uploads/products/' ~ product.images.first.filename) }}" 
+                                 alt="{{ product.name }}" 
+                                 class="img-fluid rounded mb-3" 
+                                 style="max-height: 200px; object-fit: cover;">
+                            {% endif %}
+                            <h4>{{ product.name }}</h4>
+                            <div class="d-flex justify-content-center align-items-center mb-2">
+                                <span class="h5 mb-0 me-2">{{ currency_symbol() }}{{ product.price|number_format(2) }}</span>
+                                {% if product.comparePrice and product.comparePrice > product.price %}
+                                <span class="text-muted text-decoration-line-through">{{ currency_symbol() }}{{ product.comparePrice|number_format(2) }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            {% if reviews|length > 0 %}
+                            <div class="mb-3">
+                                {% set avgRating = reviews|reduce((sum, review) => sum + review.rating, 0) / reviews|length %}
+                                <div class="d-flex justify-content-center align-items-center mb-2">
+                                    {% for i in 1..5 %}
+                                        {% if i <= avgRating %}
+                                            <i class="bi bi-star-fill text-warning"></i>
+                                        {% elseif i - avgRating < 1 %}
+                                            <i class="bi bi-star-half text-warning"></i>
+                                        {% else %}
+                                            <i class="bi bi-star text-warning"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="ms-2 fw-bold">{{ avgRating|number_format(1) }}</span>
+                                </div>
+                                <small class="text-muted">{{ reviews|length }} review{{ reviews|length != 1 ? 's' : '' }}</small>
+                            </div>
+                            {% endif %}
+                            
+                            <a href="{{ path('app_product_show', {'id': product.id}) }}" class="btn btn-primary">
+                                <i class="bi bi-arrow-left"></i> Back to Product
+                            </a>
+                            
+                            {% if is_granted('ROLE_USER') %}
+                            <a href="{{ path('app_review_new', {'id': product.id}) }}" class="btn btn-success d-block mt-2">
+                                <i class="bi bi-star"></i> Write a Review
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-8">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2><i class="bi bi-star"></i> Customer Reviews</h2>
+                        {% if reviews|length > 0 %}
+                        <div class="text-muted">
+                            Showing {{ reviews|length }} review{{ reviews|length != 1 ? 's' : '' }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if reviews|length == 0 %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-star display-1 text-muted"></i>
+                        <h3 class="mt-3">No Reviews Yet</h3>
+                        <p class="text-muted">Be the first to review this product!</p>
+                        {% if is_granted('ROLE_USER') %}
+                        <a href="{{ path('app_review_new', {'id': product.id}) }}" class="btn btn-primary">
+                            <i class="bi bi-star"></i> Write the First Review
+                        </a>
+                        {% else %}
+                        <a href="{{ path('app_login') }}" class="btn btn-primary">
+                            <i class="bi bi-person"></i> Login to Write a Review
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="reviews-container">
+                        {% for review in reviews %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h5 class="card-title mb-1">{{ review.title }}</h5>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="me-2">
+                                                {% for i in 1..5 %}
+                                                    {% if i <= review.rating %}
+                                                        <i class="bi bi-star-fill text-warning"></i>
+                                                    {% else %}
+                                                        <i class="bi bi-star text-warning"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                            <small class="text-muted">{{ review.rating }}/5</small>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">
+                                        {{ review.createdAt|date('M j, Y') }}
+                                    </small>
+                                </div>
+                                
+                                <p class="card-text">{{ review.comment }}</p>
+                                
+                                <div class="d-flex align-items-center">
+                                    <div class="d-flex align-items-center me-3">
+                                        <i class="bi bi-person-circle me-1"></i>
+                                        <small class="text-muted">
+                                            {% if review.user.firstName and review.user.lastName %}
+                                                {{ review.user.firstName }} {{ review.user.lastName }}
+                                            {% else %}
+                                                {{ review.user.email|split('@')[0] }}
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                    
+                                    {% if review.user.verified %}
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle"></i> Verified Purchase
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.reviews-container .card {
+    border-left: 4px solid #ffc107;
+}
+
+.reviews-container .card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: box-shadow 0.2s ease;
+}
+</style>
+{% endblock %} 
